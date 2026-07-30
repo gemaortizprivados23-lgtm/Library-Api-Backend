@@ -1,28 +1,21 @@
 name: CI
 
 on:
-  push:on:
   push:
     branches:
-      - main
+      - master
   pull_request:
     branches:
-      - main
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+      - master
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Instalar Node.js
+      - name: Configurar Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -30,5 +23,5 @@ jobs:
       - name: Instalar dependencias
         run: npm install
 
-      - name: Verificar sintaxis
+      - name: Ejecutar pruebas
         run: npm test --if-present
