@@ -2,23 +2,39 @@ services:
   postgres:
     image: postgres:16
     container_name: library-db
+
     restart: always
+
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 1428
       POSTGRES_DB: db_library
+
     ports:
       - "5432:5432"
+
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d db_library"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
   api:
     build: .
+
     container_name: library-api
+
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+
     ports:
       - "3000:3000"
+
     environment:
       PORT: 3000
       DB_HOST: postgres
@@ -26,6 +42,7 @@ services:
       DB_USER: postgres
       DB_PASSWORD: 1428
       DB_NAME: db_library
+
     restart: always
 
 volumes:
