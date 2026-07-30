@@ -1,9 +1,32 @@
 services:
+  postgres:
+    image: postgres:16
+    container_name: library-db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1428
+      POSTGRES_DB: db_library
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
   api:
     build: .
     container_name: library-api
+    depends_on:
+      - postgres
     ports:
       - "3000:3000"
-    env_file:
-      - .env
-    restart: unless-stopped
+    environment:
+      PORT: 3000
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: 1428
+      DB_NAME: db_library
+    restart: always
+
+volumes:
+  postgres_data:
