@@ -1,6 +1,8 @@
 services:
+
   postgres:
     image: postgres:16
+
     container_name: library-db
 
     restart: always
@@ -15,6 +17,7 @@ services:
 
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
 
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d db_library"]
@@ -23,12 +26,18 @@ services:
       retries: 5
       start_period: 10s
 
+
+
   api:
+
     build: .
 
     container_name: library-api
 
+    restart: always
+
     depends_on:
+
       postgres:
         condition: service_healthy
 
@@ -36,14 +45,42 @@ services:
       - "3000:3000"
 
     environment:
+
       PORT: 3000
+
       DB_HOST: postgres
+
       DB_PORT: 5432
+
       DB_USER: postgres
+
       DB_PASSWORD: 1428
+
       DB_NAME: db_library
+
+
+
+  frontend:
+
+    build:
+      context: ../library-frontend
+
+    container_name: library-frontend
 
     restart: always
 
+    depends_on:
+
+      - api
+
+    ports:
+      - "5173:5173"
+
+    environment:
+
+      VITE_API_URL: http://api:3000/api/books
+
+
 volumes:
+
   postgres_data:
